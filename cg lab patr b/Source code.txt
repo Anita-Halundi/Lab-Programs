@@ -1,0 +1,252 @@
+/*#include <iostream>
+
+#include<Windows.h>
+#include<mmsystem.h>
+using namespace std;
+#define SND_SYNC 0x0000
+
+int main() {
+    //PlaySound(TEXT("2.wav"), NULL, SND_SYNC);
+    PlaySound(TEXT("2.wav"), NULL, SND_FILENAME);
+    return 0;
+
+}
+
+*/
+
+//Creating ball in the bastet game
+
+#include<GL/GLUT.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include <iostream>
+#include <string>
+
+
+#include<Windows.h>
+#include<mmsystem.h>
+//using namespace std;
+#define SND_SYNC 0x0000
+
+#define GL_SILENCE_DEPRECATION
+int count1 = 0;
+const int font3 = (int)GLUT_BITMAP_TIMES_ROMAN_24;
+
+
+void renderBitmapString(float x, float y, void* font, const char* string) {
+    const char* c;
+    glRasterPos3f(-1.9, 1.5, 0);
+    for (c = string; *c != '\0'; c++) {
+        glutBitmapCharacter(font, *c);
+    }
+}
+
+
+void init()
+{
+    glClearColor(0, 0, 0, 0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-2, 2, -2, 2, -2, 2);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void ball()
+{
+    glColor3f(1, 0, 0);
+    glutWireSphere(0.2, 25, 25);
+}
+void basket()
+{
+    glColor3f(1, 1, 0);
+    glutWireCone(0.3, 0.5, 25, 25);
+}
+void poll()
+{
+    glColor3f(0, 1, 1);
+    glutSolidCube(0.8);
+}
+float ballX = 0, ballY = 1.8, basketX = 0, basketY = -1.5, pollX = 0.9, pollY = 1.8;
+int rand(), r, flagout = 0, count = 0;
+double ballSpeed = -0.016;
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glRasterPos3f(0, 0, 0);
+    glColor3f(1, 0, 0);
+    //glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 'B');
+    glLoadIdentity();
+    // glutSwapBuffers();
+
+    printf("ballX=%f\n", ballX);
+    printf("ballY=%f\n", ballY);
+    printf("basketX=%f\n", basketX);
+    printf("basketY=%f\n", basketY);
+
+    if (count == 3)
+    {
+        ballSpeed += 0.00000009;
+        count = 0;
+        count1++;
+    }
+
+    if (ballY < -1.5 && (ballX > basketX - 0.3 && ballX < basketX + 0.3))
+    {
+        count++;
+        count1++;
+        ballY = 1.8;
+        r = rand() % 4;
+        if (r == 0)
+        {
+            ballX = -1.8;
+            pollX = -1.8 + 0.9;
+        }
+        if (r == 1)
+        {
+            ballX = -1;
+            pollX = -1 + 0.9;
+        }
+        if (r == 2)
+        {
+            ballX = 1;
+            pollX = 1 + 0.9;
+        }
+        if (r == 3)
+        {
+            ballX = 1.8;
+            pollX = 1.8 + 0.9;
+        }
+    }
+
+    if (flagout == 0) {
+        //PlaySound(TEXT("2.wav"), NULL, SND_ASYNC);
+        ballY -= 0.02 + ballSpeed;
+    }
+
+    if (ballY <-1.5 && ballY>-1.51)
+    {
+        Beep(500, 100);
+        //PlaySound(TEXT("2.wav"), NULL, SND_ASYNC);
+    }
+
+
+    if (ballY < -2)
+    {
+        flagout = 1;
+        glRasterPos3f(-0.5, -0.5, 0);
+
+        char msg3[] = "Game over";
+        for (int i = 0;i < strlen(msg3);i++)
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, msg3[i]);
+
+
+    }
+    // print score
+    char buffer[50];
+    sprintf_s(buffer, "SCORE: %d", count1);
+    glColor3f(1.000, 1.000, 1.000);
+    renderBitmapString(80.5, 95, (void*)font3, buffer);
+
+    glPushMatrix();
+    glTranslatef(ballX, ballY, 0);
+    ball();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(basketX, basketY, 0);
+    glRotatef(90, 1, 0, 0);
+    basket();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(pollX, pollY, 0);
+    glScalef(1.5, 0.4, 1);
+    poll();
+    glPopMatrix();
+
+    glutSwapBuffers();
+    glutPostRedisplay();
+
+
+
+}
+void welcome() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(1, 0, 1);
+    glRasterPos3f(-0.5, 1, 0);
+    //glColor3f(1, 1, 1);
+    char msg1[] = "BALL IN THE BASKET";
+    for (int i = 0;i < strlen(msg1);i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, msg1[i]);
+
+
+    glRasterPos3f(-0.2, -0.6, 0);
+    
+  
+    char msg4[] = "Instructions";
+    for (int i = 0;i < strlen(msg4);i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, msg4[i]);
+    glColor3f(1, 1, 1);
+    glRasterPos3f(-1.7, -0.9, 0);
+    char msg5[] = "Press left and right arrow mark to move the basket left and right";
+    for (int i = 0;i < strlen(msg5);i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, msg5[i]);
+
+    glRasterPos3f(-0.5, -1.5, 0);
+    glColor3f(1, 0, 0);
+    char msg2[] = "Press X to start a game";
+    for (int i = 0;i < strlen(msg2);i++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, msg2[i]);
+
+
+    char buffer1[50];
+    glRasterPos3f(-0.9, -1.5, 0);
+    sprintf_s(buffer1, "SCORE: %d", count1);
+    //glColor3f(1.000, 0.000, 0.000);
+
+
+
+    glutSwapBuffers();
+
+
+}
+
+void skeys(int key, int x, int y)
+{
+    if (key == GLUT_KEY_LEFT)
+        basketX -= 0.3;
+    if (key == GLUT_KEY_RIGHT)
+        basketX += 0.3;
+}
+void keys(unsigned char key, int x, int y)
+{
+    if (key == 'x')
+    {
+        PlaySound(TEXT("2.wav"), NULL, SND_ASYNC);
+        glutDisplayFunc(display);
+
+    }
+    glutPostRedisplay();
+}
+
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(700, 600);
+    glutCreateWindow("Ball in the Basket");
+    init();
+
+    glutDisplayFunc(welcome);
+
+    // sprintf(score_display, “Score, harr: % u”, count1);
+    glutSpecialFunc(skeys);
+    glutKeyboardFunc(keys);
+
+    glEnable(GL_DEPTH_TEST);
+
+    glutMainLoop();
+
+    return 0;
+}
